@@ -40,16 +40,14 @@ To run the image locally, follow these steps:
 
 3. Start the Keycloak server using Docker Compose:
    - `docker compose up keycloak`
+### Accessing the Application
 
-### Ci image
+Once you have the Keycloak and Kafka services running, you can access the following:
 
-Stuff needed to be done to change the ci docker image.
+- Keycloak Admin Console: http://localhost:8080
+- Kafka UI: http://localhost:1234
 
-- Build the ci image.
-  - `docker build -t inowattio/antiope:ci -f ci.dockerfile .`
-- Push the new image.
-  - `docker push inowattio/antiope:ci`
-
+These interfaces allow you to manage your Keycloak instances and monitor Kafka topics, respectively.
 ## Module Deployment
 Copy the `antiope-jar-with-dependencies.jar` into the `$KEYCLOAK_HOME/providers` folder. Keycloak will automatically 
 install the module with all it's dependencies on start up.
@@ -77,3 +75,11 @@ The configuration for the Antiope module is encoded in Base64 and passed as an e
 	
 Replace the ANTIOPE_CONFIG value in your Docker Compose or environment configuration accordingly.
 
+### Ci image
+
+Stuff needed to be done to change the ci docker image.
+
+- Build the ci image.
+    - `docker build -t inowattio/antiope:ci -f ci.dockerfile .`
+- Push the new image.
+    - `docker push inowattio/antiope:ci`

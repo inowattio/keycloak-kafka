@@ -1,4 +1,10 @@
+
 version: '3'
+
+networks:
+  antiope:
+    driver: bridge
+
 services:
   keycloak:
 
@@ -8,8 +14,14 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin 
       KEYCLOAK_ADMIN_PASSWORD: admin
-      ANTIOPE_CONFIG: Wwp7ICJyZWFsbU5hbWUiOiAicmVhbG0xIiwKICAiYnJva2VySXAiOiAia2Fma2EiLAogICJicm9rZXJQb3J0IjogIjkwOTIiLAogICJ0b3BpYyI6ICJ0b3BpYzEiCn0sCnsgInJlYWxtTmFtZSI6ICJyZWFsbTIiLAogICJicm9rZXJJcCI6ICJrYWZrYSIsCiAgImJyb2tlclBvcnQiOiAiOTA5MiIsCiAgInRvcGljIjogInRvcGljMiIgICAKfQpd
+      ANTIOPE_CONFIG: Wwp7ICJyZWFsbU5hbWUiOiAicmVhbG0xIiwKICAiYnJva2VySXAiOiAia2Fma2EiLAogICJicm9rZXJQb3J0IjogIjkwOTIiLAogICJ0b3BpYyI6ICJ0b3BpYzEiLAoiY2xpZW50SWQiOiJjbGllbnQxIgoKfSwKeyAicmVhbG1OYW1lIjogInJlYWxtMiIsCiAgImJyb2tlcklwIjogImthZmthIiwKICAiYnJva2VyUG9ydCI6ICI5MDkyIiwKICAidG9waWMiOiAidG9waWMyIiAgLAoiY2xpZW50SWQiOiJjbGllbnQyIgogCn0KXQ==
     command: start-dev
+    depends_on:
+      - kafka
+    networks:
+      - antiope
+    expose:
+      - "8080"
     
   zookeeper:
     restart: always
@@ -18,8 +30,8 @@ services:
       - "2181:2181"
     environment:    
       - ALLOW_ANONYMOUS_LOGIN=yes
-    depends_on:
-      - kafka
+    networks:
+      - antiope
       
 
   kafka:
@@ -39,10 +51,24 @@ services:
       - KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS=5000
 
     depends_on:
-      zookeeper:
-        condition: service_healthy
+     - zookeeper
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -z -v -w5 localhost 9092" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - antiope
+
+  kafkaui:
+    container_name: kafkaui_local
+    image: provectuslabs/kafka-ui
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: antiope.local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    ports:
+      - '1234:8080'
+    networks:
+      - antiope
